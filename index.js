@@ -7,33 +7,38 @@ const googleMapsClient = require("@google/maps").createClient({
     key: config.apiKey,
 });
 
-const west = ["-34.0908521", "18.849207"]; // Somerset West
-const central = ["-33.8014849", "25.3897589"]; // Port Elizabeth
-const east = ["-26.1715172", "28.0049193"]; // Johannesburg
-let localities = {
-    west: false,
-    central: false,
-    east: false,
-};
-let placeIDs = {};
+let placeIDs = JSON.parse(fs.readFileSync("placeIDs.json"));
+let places = JSON.parse(fs.readFileSync("places.json"));
+const initialPlaceCount = utilities.getLengthOfObject(placeIDs);
 
-// PROBLEM: Need to subdivide west locality because those are where the majority are, ie. there could be more than 200
+function writeFile(file, data) {
+    console.log("Writing to", file);
+    try {
+        fs.writeFileSync(file, JSON.stringify(data));
+    } catch (error) {
+        console.error(error);
+    }
+}
 
-function getPlaceIDs(location, locality) {
-    console.log("Fetching from", location, locality);
+function getPlaceIDs(location) {
+    console.log("Fetching from", location);
     googleMapsClient.placesRadar(
         {
             location,
-            radius: 250000, // 250km
+            radius: 50000, // metres
             keyword: "wine farm",
             language: "English",
             type: "establishment",
             name: "wine estate",
         },
         (error, data) => {
-            console.log("Got data");
+            console.log("Got response");
             if (error) {
                 console.error(error);
+                if (error === "timeout") {
+                    // Retry
+                    getPlaceIDs(location);
+                }
             }
             const results = data.json.results;
 
@@ -46,30 +51,69 @@ function getPlaceIDs(location, locality) {
                 }
             });
 
-            console.log("Place count:", utilities.getLengthOfObject(placeIDs));
-            localities[locality] = true;
-
-            if (!localities.central) {
-                console.log("Sleeping for 2 seconds");
-
-                setTimeout(() => {
-                    getPlaceIDs(central, "central");
-                }, 2000);
-            } else if (localities.east) {
-                // If we have east placeIDs, write all placeIDs to file
-                try {
-                    fs.writeFileSync("placeIDs.json", JSON.stringify(placeIDs));
-                } catch (error) {
-                    console.error(error);
-                }
-            } else {
-                console.log("Sleeping for 2 seconds");
-                setTimeout(() => {
-                    getPlaceIDs(east, "east");
-                }, 2000);
-            }
+            console.log(
+                "Initial place count:",
+                initialPlaceCount,
+                "Final place count:",
+                utilities.getLengthOfObject(placeIDs),
+            );
+            writeFile("placeIDs.json", placeIDs);
         },
     );
 }
 
-getPlaceIDs(west, "west");
+function findNextPlaceID() {
+    let count = 0;
+
+    for (let placeID in placeIDs) {
+        count += 1;
+
+        if (!places[placeID]) {
+            return placeID;
+        }
+    }
+}
+
+function getPlace(placeID) {
+    console.log("Getting", placeID);
+    googleMapsClient.place(
+        {
+            placeid: placeID,
+        },
+        (error, data) => {
+            console.log("Got response");
+            if (error) {
+                console.error(error);
+                if (error === "timeout") {
+                    // Retry
+                    getPlace(placeID);
+                }
+            }
+            const place = data.json.results;
+
+            console.log("Adding", place.name);
+            places[placeID] = place;
+            writeFile("places.json", places);
+
+            // find next placeID
+            getPlace(findNextPlaceID());
+        },
+    );
+}
+
+const areas = {
+    somersetWest: ["-34.0908521", "18.849207"],
+    city: ["-33.9743927", "18.4443331"],
+    durbanville: ["-33.8299247", "18.643526"],
+    stellenbosch: ["-33.9466715", "18.7743746"],
+    malmesbury: ["-33.4617513", "18.7069095"],
+    worcester: ["-33.644465", "19.4138484"],
+};
+
+if (process.argv[2] === "getPlaceIDs") {
+    getPlaceIDs(areas.malmesbury);
+}
+if (process.argv[2] === "getPlaces") {
+    // find next placeID
+    getPlace(findNextPlaceID());
+}
