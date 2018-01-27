@@ -20,6 +20,14 @@ function writeFile(file, data) {
     }
 }
 
+function findNextArea() {
+    for (let area in areas) {
+        if (!areas[area].havePlaces) {
+            return areas[area].coords;
+        }
+    }
+}
+
 function getPlaceIDs(location) {
     console.log("Fetching from", location);
     googleMapsClient.placesRadar(
@@ -32,7 +40,6 @@ function getPlaceIDs(location) {
             name: "wine estate",
         },
         (error, data) => {
-            console.log("Got response");
             if (error) {
                 console.error(error);
                 if (error === "timeout") {
@@ -58,6 +65,16 @@ function getPlaceIDs(location) {
                 utilities.getLengthOfObject(placeIDs),
             );
             writeFile("placeIDs.json", placeIDs);
+
+            // Mark havePlaces
+            for (let area in areas) {
+                if (!areas[area].havePlaces) {
+                    areas[area].havePlaces = true;
+                }
+            }
+
+            // Find next area
+            getPlaceIDs(findNextArea());
         },
     );
 }
@@ -81,7 +98,6 @@ function getPlace(placeID) {
             placeid: placeID,
         },
         (error, data) => {
-            console.log("Got response");
             if (error) {
                 console.error(error);
                 if (error === "timeout") {
@@ -102,16 +118,19 @@ function getPlace(placeID) {
 }
 
 const areas = {
-    somersetWest: ["-34.0908521", "18.849207"],
-    city: ["-33.9743927", "18.4443331"],
-    durbanville: ["-33.8299247", "18.643526"],
-    stellenbosch: ["-33.9466715", "18.7743746"],
-    malmesbury: ["-33.4617513", "18.7069095"],
-    worcester: ["-33.644465", "19.4138484"],
+    somersetWest: { coords: ["-34.0908521", "18.849207"], havePlaces: true },
+    city: { coords: ["-33.9743927", "18.4443331"], havePlaces: true },
+    durbanville: { coords: ["-33.8299247", "18.643526"], havePlaces: true },
+    stellenbosch: { coords: ["-33.9466715", "18.7743746"], havePlaces: true },
+    malmesbury: { coords: ["-33.4617513", "18.7069095"], havePlaces: false },
+    worcester: { coords: ["-33.644465", "19.4138484"], havePlaces: false },
+    paarl: { coords: ["-33.7357876", "18.9583942"], havePlaces: false },
+    franshoek: { coords: ["-33.8994186", "19.1485305"], havePlaces: false },
+    tulbagh: { coords: ["-33.291523", "19.1323892"], havePlaces: false },
 };
 
 if (process.argv[2] === "getPlaceIDs") {
-    getPlaceIDs(areas.malmesbury);
+    getPlaceIDs(findNextArea());
 }
 if (process.argv[2] === "getPlaces") {
     // find next placeID
