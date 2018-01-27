@@ -59,7 +59,11 @@ function getPlaces() {
             const placesLength = getLengthOfObject(places);
             console.log("Places count:", placesLength);
 
-            if (placesLength < config.maxPlacesToFetch && nextPageToken) {
+            if (placesLength > config.maxPlacesToFetch - 20) {
+                console.log("We have max places");
+            } else if (!nextPageToken) {
+                console.log("No more results");
+            } else {
                 // wait for the next page token to be validated
                 console.log("Sleeping for 2 seconds");
 
@@ -73,8 +77,6 @@ function getPlaces() {
                 } catch (error) {
                     console.error(error);
                 }
-            } else {
-                console.log("We have max places");
             }
         },
     );
