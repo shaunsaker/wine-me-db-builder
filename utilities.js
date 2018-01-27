@@ -1,6 +1,6 @@
 const utilities = {};
 
-utilites.getLengthOfObject = object => {
+utilities.getLengthOfObject = object => {
     let length = 0;
 
     for (let key in object) {

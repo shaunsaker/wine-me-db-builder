@@ -8,8 +8,8 @@ const googleMapsClient = require("@google/maps").createClient({
 });
 
 const west = ["-34.0908521", "18.849207"]; // Somerset West
-const central = ["33.8014849", "25.3897589"]; // Port Elizabeth
-const east = ["26.1715172", "28.0049193"]; // Johannesburg
+const central = ["-33.8014849", "25.3897589"]; // Port Elizabeth
+const east = ["-26.1715172", "28.0049193"]; // Johannesburg
 let localities = {
     west: false,
     central: false,
@@ -17,17 +17,21 @@ let localities = {
 };
 let placeIDs = {};
 
+// PROBLEM: Need to subdivide west locality because those are where the majority are, ie. there could be more than 200
+
 function getPlaceIDs(location, locality) {
+    console.log("Fetching from", location, locality);
     googleMapsClient.placesRadar(
         {
             location,
-            radius: 50000,
+            radius: 250000, // 250km
             keyword: "wine farm",
             language: "English",
             type: "establishment",
             name: "wine estate",
         },
         (error, data) => {
+            console.log("Got data");
             if (error) {
                 console.error(error);
             }
@@ -42,11 +46,15 @@ function getPlaceIDs(location, locality) {
                 }
             });
 
-            console.log("Place count:", utilities.getLengthOfObject(results));
+            console.log("Place count:", utilities.getLengthOfObject(placeIDs));
             localities[locality] = true;
 
             if (!localities.central) {
-                getPlaceIDs(central, "central");
+                console.log("Sleeping for 2 seconds");
+
+                setTimeout(() => {
+                    getPlaceIDs(central, "central");
+                }, 2000);
             } else if (localities.east) {
                 // If we have east placeIDs, write all placeIDs to file
                 try {
@@ -55,7 +63,10 @@ function getPlaceIDs(location, locality) {
                     console.error(error);
                 }
             } else {
-                getPlaceIDs(east, "east");
+                console.log("Sleeping for 2 seconds");
+                setTimeout(() => {
+                    getPlaceIDs(east, "east");
+                }, 2000);
             }
         },
     );
