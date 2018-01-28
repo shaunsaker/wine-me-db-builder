@@ -251,6 +251,7 @@ if (process.argv[2] === "getPlaceIDs") {
         app: {
             places: finalPlaces,
             featuredPlaces: existingDB.app.featuredPlaces,
+            searchAreas: existingDB.app.searchAreas,
         },
         users: existingDB.users,
         version: existingDB.version,
