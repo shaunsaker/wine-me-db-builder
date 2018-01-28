@@ -1,4 +1,5 @@
 import fs from "fs";
+import readlineSync from "readline-sync";
 
 import config from "./config";
 import utilities from "./utilities";
@@ -11,20 +12,20 @@ let placeIDs = JSON.parse(fs.readFileSync("placeIDs.json"));
 let places = JSON.parse(fs.readFileSync("places.json"));
 const initialPlaceCount = utilities.getLengthOfObject(placeIDs);
 
-function writeFile(file, data) {
-    console.log("Writing to", file);
-    try {
-        fs.writeFileSync(file, JSON.stringify(data));
-    } catch (error) {
-        console.error(error);
-    }
-}
-
 function findNextArea() {
     for (let area in areas) {
         if (!areas[area].havePlaces) {
             return areas[area].coords;
         }
+    }
+}
+
+function writeFile(file, data) {
+    console.log("\nWriting to", file);
+    try {
+        fs.writeFileSync(file, JSON.stringify(data));
+    } catch (error) {
+        console.error(error);
     }
 }
 
@@ -153,4 +154,40 @@ if (process.argv[2] === "getPlaces") {
     const nextPlaceID = findNextPlaceID();
 
     nextPlaceID && getPlace(findNextPlaceID());
+}
+
+if (process.argv[2] === "cleanPlaces") {
+    let cleanedPlaces = {};
+    let otherPlaces = {};
+
+    for (let placeID in places) {
+        //console.log(places[placeID].name);
+
+        if (places[placeID].name.toLowerCase().match(/wine|estate|farm/)) {
+            console.log("\nAdding", places[placeID].name);
+            // Condition to automatically add it in
+            cleanedPlaces[placeID] = places[placeID];
+        } else {
+            // Otherwise, ask me to add it in and keep a list of approved names for later on
+            console.log("\nChecking", places[placeID].name);
+
+            otherPlaces[placeID] = places[placeID].name;
+
+            const answer = readlineSync.question(
+                "\nAdd " + places[placeID].name + "? (y/n) ",
+            );
+
+            if (answer === "y") {
+                cleanedPlaces[placeID] = places[placeID];
+            } else {
+                // Don't add it as cleaned
+            }
+
+            writeFile("cleanPlaces.json", cleanedPlaces);
+            writeFile("otherPlaces.json", otherPlaces);
+        }
+    }
+
+    writeFile("cleanPlaces.json", cleanedPlaces);
+    writeFile("otherPlaces.json", otherPlaces);
 }
