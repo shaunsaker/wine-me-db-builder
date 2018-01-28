@@ -1,0 +1,34 @@
+{
+  "app" : {
+    "featuredPlaces" : [ "12345678" ],
+    "places" : {
+      "12345678" : {
+        "location" : {
+          "lat" : -34.0988621,
+          "lng" : 18.8895607
+        },
+        "name" : "Waterkloof Wine Estate"
+      },
+      "12345679" : {
+        "location" : {
+          "lat" : -34.097,
+          "lng" : 18.87
+        },
+        "name" : "Yonderhill Wine Estate"
+      }
+    }
+  },
+  "users" : {
+    "7WXUDfXv30hr2Srm6LUFsjOrKlk1" : {
+      "visited" : [ "12345678", "12345679" ]
+    },
+    "ncaFTyADUYgGe6bjQWJmwehm9Km1" : {
+      "visited" : [ "12345678", "12345679" ]
+    }
+  },
+  "version" : {
+    "major" : 1,
+    "minor" : 0,
+    "patch" : 0
+  }
+}
