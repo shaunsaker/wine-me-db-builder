@@ -10,6 +10,7 @@ const googleMapsClient = require("@google/maps").createClient({
 
 let placeIDs = JSON.parse(fs.readFileSync("placeIDs.json"));
 let places = JSON.parse(fs.readFileSync("places.json"));
+
 const initialPlaceCount = utilities.getLengthOfObject(placeIDs);
 
 function findNextArea() {
@@ -161,33 +162,45 @@ if (process.argv[2] === "cleanPlaces") {
     let otherPlaces = {};
 
     for (let placeID in places) {
-        //console.log(places[placeID].name);
-
-        if (places[placeID].name.toLowerCase().match(/wine|estate|farm/)) {
+        if (
+            places[placeID].name
+                .toLowerCase()
+                .match(/wine|estate|farm|vineyard|cellar|tasting/)
+        ) {
             console.log("\nAdding", places[placeID].name);
             // Condition to automatically add it in
             cleanedPlaces[placeID] = places[placeID];
         } else {
+            // TODO: If restaurant|cottage|guest|kitchen|eat|house|hotel|lodge|bistro|bar, immediately get rid of
+
             // Otherwise, ask me to add it in and keep a list of approved names for later on
             console.log("\nChecking", places[placeID].name);
-
-            otherPlaces[placeID] = places[placeID].name;
 
             const answer = readlineSync.question(
                 "\nAdd " + places[placeID].name + "? (y/n) ",
             );
 
             if (answer === "y") {
+                otherPlaces[placeID] = places[placeID].name;
                 cleanedPlaces[placeID] = places[placeID];
+
+                writeFile("cleanPlaces.json", cleanedPlaces);
+                writeFile("otherPlaces.json", otherPlaces);
             } else {
                 // Don't add it as cleaned
             }
-
-            writeFile("cleanPlaces.json", cleanedPlaces);
-            writeFile("otherPlaces.json", otherPlaces);
         }
     }
 
     writeFile("cleanPlaces.json", cleanedPlaces);
     writeFile("otherPlaces.json", otherPlaces);
+}
+
+if (process.argv[2] === "countCleanPlaces") {
+    const cleanPlaces = JSON.parse(fs.readFileSync("cleanPlaces.json"));
+    let count = 0;
+    for (let placeID in cleanPlaces) {
+        count += 1;
+    }
+    console.log("Clean places count:", count);
 }
