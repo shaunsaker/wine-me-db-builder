@@ -86,7 +86,10 @@ function getPlaceIDs(location, radius) {
                 console.log("Sleeping for 2 seconds");
 
                 setTimeout(() => {
-                    getPlaceIDs(nextAreaCoords, process.argv[3]); // 3 = radius in km
+                    getPlaceIDs(
+                        nextAreaCoords,
+                        process.argv[3] ? process.argv[3] : 50,
+                    ); // 3 = radius in km
                 }, 2000);
             }
         },
@@ -137,7 +140,7 @@ function getPlace(placeID) {
     );
 }
 
-function cleanPlaces() {
+function cleanPlacesFunction() {
     for (let placeID in places) {
         if (!cleanPlaces[placeID]) {
             // Only do stuff if the place is not already in cleanPlaces
@@ -240,7 +243,7 @@ if (process.argv[2] === "getPlaceIDs") {
 
     nextPlaceID && getPlace(findNextPlaceID());
 } else if (process.argv[2] === "cleanPlaces") {
-    cleanPlaces();
+    cleanPlacesFunction();
 } else if (process.argv[2] === "cleanPlacesData") {
     cleanPlacesData();
 } else if (process.argv[2] === "prepareDB") {
