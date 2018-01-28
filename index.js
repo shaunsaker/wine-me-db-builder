@@ -28,12 +28,12 @@ function findNextArea() {
     }
 }
 
-function getPlaceIDs(location) {
+function getPlaceIDs(location, radius) {
     console.log("Fetching from", location);
     googleMapsClient.placesRadar(
         {
             location,
-            radius: 50000, // metres
+            radius: radius * 1000, // metres
             keyword: "wine farm",
             language: "English",
             type: "establishment",
@@ -66,15 +66,22 @@ function getPlaceIDs(location) {
             );
             writeFile("placeIDs.json", placeIDs);
 
-            // Mark havePlaces
             for (let area in areas) {
                 if (!areas[area].havePlaces) {
                     areas[area].havePlaces = true;
+                    break;
                 }
             }
 
-            // Find next area
-            getPlaceIDs(findNextArea());
+            const nextAreaCoords = findNextArea();
+
+            if (nextAreaCoords) {
+                console.log("Sleeping for 2 seconds");
+
+                setTimeout(() => {
+                    getPlaceIDs(nextAreaCoords, process.argv[3]); // 3 = radius in km
+                }, 2000);
+            }
         },
     );
 }
@@ -105,34 +112,45 @@ function getPlace(placeID) {
                     getPlace(placeID);
                 }
             }
-            const place = data.json.results;
+            const place = data.json.result;
 
             console.log("Adding", place.name);
             places[placeID] = place;
             writeFile("places.json", places);
 
+            console.log("Sleeping for 2 seconds");
+
             // find next placeID
-            getPlace(findNextPlaceID());
+            setTimeout(() => {
+                const nextPlaceID = findNextPlaceID();
+
+                nextPlaceID && getPlace(findNextPlaceID());
+            }, 2000);
         },
     );
 }
 
 const areas = {
-    somersetWest: { coords: ["-34.0908521", "18.849207"], havePlaces: true },
-    city: { coords: ["-33.9743927", "18.4443331"], havePlaces: true },
-    durbanville: { coords: ["-33.8299247", "18.643526"], havePlaces: true },
-    stellenbosch: { coords: ["-33.9466715", "18.7743746"], havePlaces: true },
+    somersetWest: { coords: ["-34.0908521", "18.849207"], havePlaces: false },
+    city: { coords: ["-33.9743927", "18.4443331"], havePlaces: false },
+    durbanville: { coords: ["-33.8299247", "18.643526"], havePlaces: false },
+    stellenbosch: { coords: ["-33.9466715", "18.7743746"], havePlaces: false },
     malmesbury: { coords: ["-33.4617513", "18.7069095"], havePlaces: false },
     worcester: { coords: ["-33.644465", "19.4138484"], havePlaces: false },
     paarl: { coords: ["-33.7357876", "18.9583942"], havePlaces: false },
     franshoek: { coords: ["-33.8994186", "19.1485305"], havePlaces: false },
     tulbagh: { coords: ["-33.291523", "19.1323892"], havePlaces: false },
+    darling: { coords: ["-33.368283", "18.392086"], havePlaces: false },
 };
 
 if (process.argv[2] === "getPlaceIDs") {
-    getPlaceIDs(findNextArea());
+    const nextAreaCoords = findNextArea();
+
+    nextAreaCoords && getPlaceIDs(nextAreaCoords, process.argv[3]); // 3 = radius in km
 }
+
 if (process.argv[2] === "getPlaces") {
-    // find next placeID
-    getPlace(findNextPlaceID());
+    const nextPlaceID = findNextPlaceID();
+
+    nextPlaceID && getPlace(findNextPlaceID());
 }
