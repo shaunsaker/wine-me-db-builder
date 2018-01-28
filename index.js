@@ -10,6 +10,9 @@ const googleMapsClient = require("@google/maps").createClient({
 
 let placeIDs = JSON.parse(fs.readFileSync("placeIDs.json"));
 let places = JSON.parse(fs.readFileSync("places.json"));
+let cleanPlaces = JSON.parse(fs.readFileSync("cleanPlaces.json"));
+let approvedPlaces = JSON.parse(fs.readFileSync("approvedPlaces.json"));
+let disapprovedPlaces = JSON.parse(fs.readFileSync("disapprovedPlaces.json"));
 
 const initialPlaceCount = utilities.getLengthOfObject(placeIDs);
 
@@ -158,46 +161,60 @@ if (process.argv[2] === "getPlaces") {
 }
 
 if (process.argv[2] === "cleanPlaces") {
-    let cleanedPlaces = {};
-    let otherPlaces = {};
-
     for (let placeID in places) {
-        if (
-            places[placeID].name
-                .toLowerCase()
-                .match(/wine|estate|farm|vineyard|cellar|tasting/)
-        ) {
-            console.log("\nAdding", places[placeID].name);
-            // Condition to automatically add it in
-            cleanedPlaces[placeID] = places[placeID];
-        } else {
-            // TODO: If restaurant|cottage|guest|kitchen|eat|house|hotel|lodge|bistro|bar, immediately get rid of
+        if (!cleanPlaces[placeID]) {
+            // Only do stuff if the place is not already in cleanPlaces
 
-            // Otherwise, ask me to add it in and keep a list of approved names for later on
-            console.log("\nChecking", places[placeID].name);
+            if (approvedPlaces[placeID]) {
+                // Add it in if it was previously approved
+                console.log("\nAdding", places[placeID].name);
 
-            const answer = readlineSync.question(
-                "\nAdd " + places[placeID].name + "? (y/n) ",
-            );
+                cleanPlaces[placeID] = places[placeID];
 
-            if (answer === "y") {
-                otherPlaces[placeID] = places[placeID].name;
-                cleanedPlaces[placeID] = places[placeID];
+                writeFile("cleanPlaces.json", cleanPlaces);
+            } else if (
+                places[placeID].name
+                    .toLowerCase()
+                    .match(/wine|estate|farm|vineyard|cellar|tasting/)
+            ) {
+                // Add it in if it matches these strings
+                console.log("\nAdding", places[placeID].name);
 
-                writeFile("cleanPlaces.json", cleanedPlaces);
-                writeFile("otherPlaces.json", otherPlaces);
-            } else {
-                // Don't add it as cleaned
+                cleanPlaces[placeID] = places[placeID];
+
+                writeFile("cleanPlaces.json", cleanPlaces);
+            } else if (
+                places[placeID].name
+                    .toLowerCase()
+                    .match(
+                        /restaurant|cottage|guest|kitchen|eat|house|hotel|lodge|bistro|bar/,
+                    )
+            ) {
+                // Don't do anything
+            } else if (!disapprovedPlaces[placeID]) {
+                // Otherwise, ask me what to do and keep a list of approved names for later on
+                const answer = readlineSync.question(
+                    "\nAdd " + places[placeID].name + "? (y/n) ",
+                );
+
+                if (answer === "y") {
+                    approvedPlaces[placeID] = places[placeID].name;
+                    cleanPlaces[placeID] = places[placeID];
+
+                    writeFile("cleanPlaces.json", cleanPlaces);
+                    writeFile("approvedPlaces.json", approvedPlaces);
+                } else {
+                    // Add it to disapprovedPlaces so that we don't get queried again
+                    disapprovedPlaces[placeID] = places[placeID].name;
+
+                    writeFile("disapprovedPlaces.json", disapprovedPlaces);
+                }
             }
         }
     }
-
-    writeFile("cleanPlaces.json", cleanedPlaces);
-    writeFile("otherPlaces.json", otherPlaces);
 }
 
 if (process.argv[2] === "countCleanPlaces") {
-    const cleanPlaces = JSON.parse(fs.readFileSync("cleanPlaces.json"));
     let count = 0;
     for (let placeID in cleanPlaces) {
         count += 1;
