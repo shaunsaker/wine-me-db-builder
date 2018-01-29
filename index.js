@@ -155,6 +155,14 @@ function cleanPlacesFunction() {
             } else if (
                 places[placeID].name
                     .toLowerCase()
+                    .match(
+                        /restaurant|cottage|guest|kitchen|eat|house|hotel|lodge|bistro|bar|healey|office|route|tour|building|association|@|brewer| at /,
+                    )
+            ) {
+                // Don't do anything
+            } else if (
+                places[placeID].name
+                    .toLowerCase()
                     .match(/wine|estate|farm|vineyard|cellar|tasting/)
             ) {
                 // Add it in if it matches these strings
@@ -163,14 +171,6 @@ function cleanPlacesFunction() {
                 cleanPlaces[placeID] = places[placeID];
 
                 writeFile("cleanPlaces.json", cleanPlaces);
-            } else if (
-                places[placeID].name
-                    .toLowerCase()
-                    .match(
-                        /restaurant|cottage|guest|kitchen|eat|house|hotel|lodge|bistro|bar/,
-                    )
-            ) {
-                // Don't do anything
             } else if (!disapprovedPlaces[placeID]) {
                 // Otherwise, ask me what to do and keep a list of approved names for later on
                 const answer = readlineSync.question(
@@ -192,6 +192,8 @@ function cleanPlacesFunction() {
             }
         }
     }
+
+    writeFile("cleanPlaces.json", cleanPlaces);
 
     let count = 0;
     for (let placeID in cleanPlaces) {
