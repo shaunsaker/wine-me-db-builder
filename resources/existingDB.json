@@ -3,59 +3,35 @@
         "featuredPlaces": ["ChIJzxOZlRfKzR0RLPvYwtEU8w4"],
         "searchAreas": {
             "Constantia": {
-                "location": {
-                    "lat": "-34.0275607",
-                    "lng": "18.3963313"
-                },
+                "location": { "lat": "-34.0275607", "lng": "18.3963313" },
                 "radius": 10
             },
             "Durbanville": {
-                "location": {
-                    "lat": "-33.829889",
-                    "lng": "18.643526"
-                },
+                "location": { "lat": "-33.829889", "lng": "18.643526" },
                 "radius": 10
             },
             "Franshoek": {
-                "location": {
-                    "lat": "-33.9019778",
-                    "lng": "19.1127867"
-                },
+                "location": { "lat": "-33.9019778", "lng": "19.1127867" },
                 "radius": 10
             },
             "Helderberg": {
-                "location": {
-                    "lat": "-34.1347708",
-                    "lng": "18.771188"
-                },
+                "location": { "lat": "-34.1347708", "lng": "18.771188" },
                 "radius": 10
             },
             "Paarl": {
-                "location": {
-                    "lat": "-33.7274225",
-                    "lng": "18.9260258"
-                },
+                "location": { "lat": "-33.7274225", "lng": "18.9260258" },
                 "radius": 10
             },
             "Stellenbosch": {
-                "location": {
-                    "lat": "-33.9465291",
-                    "lng": "18.7743747"
-                },
+                "location": { "lat": "-33.9465291", "lng": "18.7743747" },
                 "radius": 10
             },
             "Tulbagh": {
-                "location": {
-                    "lat": "-33.2856188",
-                    "lng": "19.1362717"
-                },
+                "location": { "lat": "-33.2856188", "lng": "19.1362717" },
                 "radius": 10
             },
             "Worcester": {
-                "location": {
-                    "lat": "-33.6443936",
-                    "lng": "19.4138484"
-                },
+                "location": { "lat": "-33.6443936", "lng": "19.4138484" },
                 "radius": 10
             }
         }
@@ -67,22 +43,14 @@
         "5mGsTBqgalPVE4YbFjQi8n4YL112": {
             "visited": ["ChIJfW140261zR0RfYE1_tBUnuU"]
         },
-        "7WXUDfXv30hr2Srm6LUFsjOrKlk1": {
-            "visited": ["12345678", "12345679"]
-        },
+        "7WXUDfXv30hr2Srm6LUFsjOrKlk1": { "visited": ["12345678", "12345679"] },
         "cvZQRnC0TFSCNOJhLaG2J7sE4xv1": {
             "visited": [
                 "ChIJfW140261zR0RfYE1_tBUnuU",
                 "ChIJzxOZlRfKzR0RLPvYwtEU8w4"
             ]
         },
-        "ncaFTyADUYgGe6bjQWJmwehm9Km1": {
-            "visited": ["12345678", "12345679"]
-        }
+        "ncaFTyADUYgGe6bjQWJmwehm9Km1": { "visited": ["12345678", "12345679"] }
     },
-    "version": {
-        "major": 1,
-        "minor": 0,
-        "patch": 0
-    }
+    "version": { "major": 1, "minor": 0, "patch": 0 }
 }

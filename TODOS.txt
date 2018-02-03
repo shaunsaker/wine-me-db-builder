@@ -1,4 +1,0 @@
-TODOS
-
-Use firebase-cli to grab existing db and to post new db
-Do everything in one foul swoop
