@@ -1,0 +1,5 @@
+TODOS
+
+Manually approve or disapprove places and keep track of these
+Use firebase-cli to grab existing db and to post new db
+Do everything in one foul swoop

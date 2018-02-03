@@ -8,13 +8,17 @@ const googleMapsClient = require("@google/maps").createClient({
     key: config.apiKey,
 });
 
-let placeIDs = JSON.parse(fs.readFileSync("placeIDs.json"));
-let places = JSON.parse(fs.readFileSync("places.json"));
-let cleanPlaces = JSON.parse(fs.readFileSync("cleanPlaces.json"));
-let approvedPlaces = JSON.parse(fs.readFileSync("approvedPlaces.json"));
-let disapprovedPlaces = JSON.parse(fs.readFileSync("disapprovedPlaces.json"));
-const existingDB = JSON.parse(fs.readFileSync("existingDB.json"));
-const finalPlaces = JSON.parse(fs.readFileSync("finalPlaces.json"));
+let placeIDs = JSON.parse(fs.readFileSync("./output/placeIDs.json"));
+let places = JSON.parse(fs.readFileSync("./output/places.json"));
+let cleanPlaces = JSON.parse(fs.readFileSync("./output/cleanPlaces.json"));
+let approvedPlaces = JSON.parse(
+    fs.readFileSync("./output/approvedPlaces.json"),
+);
+let disapprovedPlaces = JSON.parse(
+    fs.readFileSync("./output/disapprovedPlaces.json"),
+);
+const existingDB = JSON.parse(fs.readFileSync("./resources/existingDB.json"));
+const finalPlaces = JSON.parse(fs.readFileSync("./output/finalPlaces.json"));
 
 const initialPlaceCount = utilities.getLengthOfObject(placeIDs);
 
@@ -71,7 +75,7 @@ function getPlaceIDs(location, radius) {
                 "Final place count:",
                 utilities.getLengthOfObject(placeIDs),
             );
-            writeFile("placeIDs.json", placeIDs);
+            writeFile("./output/placeIDs.json", placeIDs);
 
             for (let area in areas) {
                 if (!areas[area].havePlaces) {
@@ -126,7 +130,7 @@ function getPlace(placeID) {
 
             console.log("Adding", place.name);
             places[placeID] = place;
-            writeFile("places.json", places);
+            writeFile("./output/places.json", places);
 
             console.log("Sleeping for 2 seconds");
 
@@ -151,7 +155,7 @@ function cleanPlacesFunction() {
 
                 cleanPlaces[placeID] = places[placeID];
 
-                writeFile("cleanPlaces.json", cleanPlaces);
+                writeFile("./output/cleanPlaces.json", cleanPlaces);
             } else if (
                 places[placeID].name
                     .toLowerCase()
@@ -170,7 +174,7 @@ function cleanPlacesFunction() {
 
                 cleanPlaces[placeID] = places[placeID];
 
-                writeFile("cleanPlaces.json", cleanPlaces);
+                writeFile("./output/cleanPlaces.json", cleanPlaces);
             } else if (!disapprovedPlaces[placeID]) {
                 // Otherwise, ask me what to do and keep a list of approved names for later on
                 const answer = readlineSync.question(
@@ -181,19 +185,22 @@ function cleanPlacesFunction() {
                     approvedPlaces[placeID] = places[placeID].name;
                     cleanPlaces[placeID] = places[placeID];
 
-                    writeFile("cleanPlaces.json", cleanPlaces);
-                    writeFile("approvedPlaces.json", approvedPlaces);
+                    writeFile("./output/cleanPlaces.json", cleanPlaces);
+                    writeFile("./output/approvedPlaces.json", approvedPlaces);
                 } else {
                     // Add it to disapprovedPlaces so that we don't get queried again
                     disapprovedPlaces[placeID] = places[placeID].name;
 
-                    writeFile("disapprovedPlaces.json", disapprovedPlaces);
+                    writeFile(
+                        "./output/disapprovedPlaces.json",
+                        disapprovedPlaces,
+                    );
                 }
             }
         }
     }
 
-    writeFile("cleanPlaces.json", cleanPlaces);
+    writeFile("./output/cleanPlaces.json", cleanPlaces);
 
     let count = 0;
     for (let placeID in cleanPlaces) {
@@ -219,7 +226,7 @@ function cleanPlacesData() {
         finalPlaces[placeID] = place;
     }
 
-    writeFile("finalPlaces.json", finalPlaces);
+    writeFile("./output/finalPlaces.json", finalPlaces);
 }
 
 const areas = {
@@ -259,7 +266,7 @@ if (process.argv[2] === "getPlaceIDs") {
         version: existingDB.version,
     };
 
-    writeFile("newDB.json", newDB);
+    writeFile("./output/newDB.json", newDB);
 } else {
     console.log(
         "\nNothing for you bro. \n\nAdd one of the following arguments: \n\ngetPlaceIDs (+ radius in km)\ngetPlaces\ncleanPlaces\ncountCleanPlaces\nprepareDB\n",
