@@ -3,6 +3,9 @@ echo STARTING
 # get the existing db and save it
 firebase database:get / > ./resources/existingDB.json
 
+# clean output
+npm start cleanOutput
+
 # get new place ids
 npm start getPlaceIDs
 

@@ -22,6 +22,11 @@ const finalPlaces = JSON.parse(fs.readFileSync("./output/finalPlaces.json"));
 
 const initialPlaceCount = utilities.getLengthOfObject(placeIDs);
 
+function cleanOutput() {
+    writeFile("./output/cleanPlaces.json", {});
+    writeFile("./output/finalPlaces.json", {});
+}
+
 function findNextArea() {
     for (let area in areas) {
         if (!areas[area].havePlaces) {
@@ -223,7 +228,9 @@ const areas = {
     darling: { coords: ["-33.368283", "18.392086"], havePlaces: false },
 };
 
-if (process.argv[2] === "getPlaceIDs") {
+if (process.argv[2] === "cleanOutput") {
+    cleanOutput();
+} else if (process.argv[2] === "getPlaceIDs") {
     const nextAreaCoords = findNextArea();
 
     nextAreaCoords &&
