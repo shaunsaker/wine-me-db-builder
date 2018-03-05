@@ -203,7 +203,10 @@ function cleanPlacesData() {
         const place = {
             name: cleanPlaces[placeID].name,
             location: cleanPlaces[placeID].geometry.location,
-            rating: cleanPlaces[placeID].rating,
+            website: cleanPlaces[placeID].website,
+            phoneNumber: cleanPlaces[placeID].formatted_phone_number,
+            address: cleanPlaces[placeID].formatted_address,
+            openingHours: cleanPlaces[placeID].opening_hours && cleanPlaces[placeID].opening_hours.weekday_text,
             photoReference:
                 cleanPlaces[placeID].photos &&
                 cleanPlaces[placeID].photos[0].photo_reference,

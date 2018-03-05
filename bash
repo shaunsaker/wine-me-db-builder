@@ -1,7 +1,7 @@
 echo STARTING
 
 # get the existing db and save it
-firebase database:get / > ./resources/existingDB.json
+firebase database:get /staging > ./resources/existingDB.json
 
 # clean output
 npm start cleanOutput
@@ -22,6 +22,9 @@ npm start cleanPlacesData
 npm start prepareDB
 
 # upload new db to firebase
-firebase database:set / ./output/newDB.json
+firebase database:set /staging ./output/newDB.json
+
+# upload new db to firebase - development node
+firebase database:set /development ./output/newDB.json
 
 echo COMPLETE
