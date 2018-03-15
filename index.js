@@ -106,11 +106,7 @@ function getPlaceIDs(location, radius) {
 }
 
 function findNextPlaceID() {
-    let count = 0;
-
     for (let placeID in placeIDs) {
-        count += 1;
-
         if (!places[placeID]) {
             return placeID;
         }
@@ -198,7 +194,7 @@ function cleanPlacesFunction() {
 function cleanPlacesData() {
     let finalPlaces = {};
 
-    // Only want to keep a minimal amount of information, ie. name, geometry, rating
+    // Attach the relevant info we need
     for (let placeID in cleanPlaces) {
         const place = {
             name: cleanPlaces[placeID].name,
@@ -206,7 +202,9 @@ function cleanPlacesData() {
             website: cleanPlaces[placeID].website,
             phoneNumber: cleanPlaces[placeID].formatted_phone_number,
             address: cleanPlaces[placeID].formatted_address,
-            openingHours: cleanPlaces[placeID].opening_hours && cleanPlaces[placeID].opening_hours.weekday_text,
+            openingHours:
+                cleanPlaces[placeID].opening_hours &&
+                cleanPlaces[placeID].opening_hours.weekday_text,
             photoReference:
                 cleanPlaces[placeID].photos &&
                 cleanPlaces[placeID].photos[0].photo_reference,
