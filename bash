@@ -1,14 +1,16 @@
-# get the existing db and save it
-firebase database:get /staging > ./resources/existingDB.json
+echo STARTING
+
+# get the existing places db and save it
+firebase database:get /staging/app/places/ > ./resources/existingDB.json
 
 # clean output
 npm start cleanOutput
 
 # get new place ids 
-npm start getPlaceIDs 
+# npm start getPlaceIDs 
 
 # get new places
-npm start getPlaces
+# npm start getPlaces
 
 # clean places
 npm start cleanPlaces
@@ -19,8 +21,10 @@ npm start cleanPlacesData
 # prepare new db
 npm start prepareDB
 
-# upload new db to firebase
-firebase database:set /staging ./output/newDB.json --confirm
-
 # upload new db to firebase - development node
-firebase database:set /development ./output/newDB.json --confirm
+firebase database:set /development/app/places ./output/newDB.json
+
+# upload new db to firebase
+firebase database:set /staging/app/places/ ./output/newDB.json
+
+echo COMPLETE

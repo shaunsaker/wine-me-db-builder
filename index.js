@@ -147,37 +147,30 @@ function getPlace(placeID) {
 
 function cleanPlacesFunction() {
     for (let placeID in places) {
-        if (!cleanPlaces[placeID]) {
-            // Only do stuff if the place is not already in cleanPlaces
+        if (approvedPlaces[placeID]) {
+            // Add it in if it was previously approved
+            console.log("\nAdding", places[placeID].name);
 
-            if (approvedPlaces[placeID]) {
-                // Add it in if it was previously approved
-                console.log("\nAdding", places[placeID].name);
+            cleanPlaces[placeID] = places[placeID];
 
+            writeFile("./output/cleanPlaces.json", cleanPlaces);
+        } else if (!disapprovedPlaces[placeID]) {
+            // Otherwise, ask me what to do and keep a list of approved names for later on
+            const answer = readlineSync.question(
+                "\nAdd " + places[placeID].name + "? (y/n) ",
+            );
+
+            if (answer === "y") {
+                approvedPlaces[placeID] = places[placeID].name;
                 cleanPlaces[placeID] = places[placeID];
 
                 writeFile("./output/cleanPlaces.json", cleanPlaces);
-            } else if (!disapprovedPlaces[placeID]) {
-                // Otherwise, ask me what to do and keep a list of approved names for later on
-                const answer = readlineSync.question(
-                    "\nAdd " + places[placeID].name + "? (y/n) ",
-                );
+                writeFile("./output/approvedPlaces.json", approvedPlaces);
+            } else {
+                // Add it to disapprovedPlaces so that we don't get queried again
+                disapprovedPlaces[placeID] = places[placeID].name;
 
-                if (answer === "y") {
-                    approvedPlaces[placeID] = places[placeID].name;
-                    cleanPlaces[placeID] = places[placeID];
-
-                    writeFile("./output/cleanPlaces.json", cleanPlaces);
-                    writeFile("./output/approvedPlaces.json", approvedPlaces);
-                } else {
-                    // Add it to disapprovedPlaces so that we don't get queried again
-                    disapprovedPlaces[placeID] = places[placeID].name;
-
-                    writeFile(
-                        "./output/disapprovedPlaces.json",
-                        disapprovedPlaces,
-                    );
-                }
+                writeFile("./output/disapprovedPlaces.json", disapprovedPlaces);
             }
         }
     }
@@ -196,6 +189,13 @@ function cleanPlacesData() {
 
     // Attach the relevant info we need
     for (let placeID in cleanPlaces) {
+        // Only attach the photo references
+        let photos =
+            cleanPlaces[placeID].photos &&
+            cleanPlaces[placeID].photos.map((item, index) => {
+                return item.photo_reference;
+            });
+
         const place = {
             name: cleanPlaces[placeID].name,
             location: cleanPlaces[placeID].geometry.location,
@@ -205,9 +205,7 @@ function cleanPlacesData() {
             openingHours:
                 cleanPlaces[placeID].opening_hours &&
                 cleanPlaces[placeID].opening_hours.weekday_text,
-            photoReference:
-                cleanPlaces[placeID].photos &&
-                cleanPlaces[placeID].photos[0].photo_reference,
+            photos,
         };
 
         finalPlaces[placeID] = place;
@@ -245,17 +243,7 @@ if (process.argv[2] === "cleanOutput") {
 } else if (process.argv[2] === "cleanPlacesData") {
     cleanPlacesData();
 } else if (process.argv[2] === "prepareDB") {
-    const newDB = {
-        app: {
-            places: finalPlaces,
-            featuredPlaces: existingDB.app.featuredPlaces,
-            searchAreas: existingDB.app.searchAreas,
-        },
-        users: existingDB.users,
-        version: existingDB.version,
-    };
-
-    writeFile("./output/newDB.json", newDB);
+    writeFile("./output/newDB.json", finalPlaces);
 } else {
     console.log(
         "\nNothing for you bro. \n\nAdd one of the following arguments: \n\ngetPlaceIDs (+ radius in km)\ngetPlaces\ncleanPlaces\ncountCleanPlaces\nprepareDB\n",
