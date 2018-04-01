@@ -10,7 +10,7 @@ npm start cleanOutput
 # npm start getPlaceIDs 
 
 # get new places
-# npm start getPlaces
+npm start getPlaces
 
 # clean places
 npm start cleanPlaces
